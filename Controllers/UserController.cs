@@ -52,18 +52,25 @@ namespace KKBYFinals.Controllers
         // POST: User/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("UserId,Username,Password,Role")] User user)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(user);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(user);
-        }
+        
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create([Bind("Username,Password,Role")] User user)
+{
+    if (ModelState.IsValid)
+    {
+        user.PasswordHash = new Microsoft.AspNetCore.Identity.PasswordHasher<User>()
+    .HashPassword(user, user.Password);
+
+        _context.Add(user);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    return View(user);
+}
+
 
         // GET: User/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -84,37 +91,43 @@ namespace KKBYFinals.Controllers
         // POST: User/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("UserId,Username,Password,Role")] User user)
-        {
-            if (id != user.UserId)
-            {
-                return NotFound();
-            }
+        
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, [Bind("UserId,Username,Password,Role")] User user)
+{
+    if (id != user.UserId)
+    {
+        return NotFound();
+    }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!UserExists(user.UserId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(user);
+    var existingUser = await _context.User.FindAsync(id);
+
+    if (existingUser == null)
+    {
+        return NotFound();
+    }
+
+    if (ModelState.IsValid)
+    {
+        existingUser.Username = user.Username;
+        existingUser.Role = user.Role;
+
+        if (!string.IsNullOrWhiteSpace(user.Password))
+        {
+            existingUser.PasswordHash =
+    new Microsoft.AspNetCore.Identity.PasswordHasher<User>()
+        .HashPassword(existingUser, user.Password);
         }
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    return View(user);
+}
+
 
         // GET: User/Delete/5
         public async Task<IActionResult> Delete(int? id)
