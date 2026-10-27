@@ -8,4 +8,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
 
 public DbSet<KKBYFinals.Models.User> User { get; set; } = default!;
+
+public DbSet<KKBYFinals.Models.Product> Product { get; set; } = default!;
+
+public DbSet<KKBYFinals.Models.Inventory> Inventory { get; set; } = default!;
+
+public DbSet<KKBYFinals.Models.Order> Order { get; set; } = default!;
 }
