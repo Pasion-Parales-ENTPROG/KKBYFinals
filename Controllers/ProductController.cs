@@ -54,7 +54,7 @@ namespace KKBYFinals.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,Name,Category,Price,ServingSizeGrams")] Product product)
+        public async Task<IActionResult> Create([Bind("Name,Category,Price,ServingSizeGrams")] Product product)
         {
             if (ModelState.IsValid)
             {
@@ -84,37 +84,39 @@ namespace KKBYFinals.Controllers
         // POST: Product/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,Name,Category,Price,ServingSizeGrams")] Product product)
-        {
-            if (id != product.ProductId)
-            {
-                return NotFound();
-            }
+       [HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(
+    int id,
+    [Bind("ProductId,Name,Category,Price,ServingSizeGrams")]
+    Product product)
+{
+    if (id != product.ProductId)
+    {
+        return NotFound();
+    }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(product);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ProductExists(product.ProductId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(product);
+    if (ModelState.IsValid)
+    {
+        var existingProduct = await _context.Product.FindAsync(id);
+
+        if (existingProduct == null)
+        {
+            return NotFound();
         }
+
+        existingProduct.Name = product.Name;
+        existingProduct.Category = product.Category;
+        existingProduct.Price = product.Price;
+        existingProduct.ServingSizeGrams = product.ServingSizeGrams;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    return View(product);
+}
 
         // GET: Product/Delete/5
         public async Task<IActionResult> Delete(int? id)
