@@ -59,12 +59,15 @@ namespace KKBYFinals.Controllers
 [HttpPost]
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> Create(
-    [Bind("InventoryId,ProductId,Quantity,LastUpdated,MinStockLevel")]
+    [Bind("ProductId,Quantity,LastUpdated,MinStockLevel")]
     Inventory inventory)
 {
     if (ModelState.IsValid)
     {
-        inventory.LastUpdated = DateTime.Now;
+        inventory.LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(
+    DateTime.UtcNow,
+    TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila")
+);
 
         _context.Add(inventory);
         await _context.SaveChangesAsync();
@@ -101,40 +104,60 @@ public async Task<IActionResult> Create(
         // POST: Inventory/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("InventoryId,ProductId,Quantity,LastUpdated,MinStockLevel")] Inventory inventory)
+       [HttpPost]
+       [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("InventoryId,ProductId,Quantity,MinStockLevel")]
+            Inventory inventory)
         {
-            if (id != inventory.InventoryId)
+        if (id != inventory.InventoryId)
+        {
+            return NotFound();
+        }
+
+        if (ModelState.IsValid)
+        {
+        try
+        {
+            var existingInventory = await _context.Inventory.FindAsync(id);
+
+            if (existingInventory == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(inventory);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!InventoryExists(inventory.InventoryId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ProductId"] = new SelectList(
-    _context.Product, "ProductId", "Name",
-    inventory.ProductId);
-            return View(inventory);
+            existingInventory.ProductId = inventory.ProductId;
+            existingInventory.Quantity = inventory.Quantity;
+            existingInventory.MinStockLevel = inventory.MinStockLevel;
+            existingInventory.LastUpdated = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime.UtcNow,
+            TimeZoneInfo.FindSystemTimeZoneById("Asia/Manila")
+            );
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!InventoryExists(inventory.InventoryId))
+            {
+                return NotFound();
+            }
+
+            throw;
+        }
+    }
+
+    ViewData["ProductId"] = new SelectList(
+        _context.Product,
+        "ProductId",
+        "Name",
+        inventory.ProductId);
+
+    return View(inventory);
+}
 
         // GET: Inventory/Delete/5
         public async Task<IActionResult> Delete(int? id)

@@ -62,6 +62,8 @@ public async Task<IActionResult> Create([Bind("Username,Password,Role")] User us
         user.PasswordHash = new Microsoft.AspNetCore.Identity.PasswordHasher<User>()
     .HashPassword(user, user.Password);
 
+        user.Password = ""; 
+
         _context.Add(user);
         await _context.SaveChangesAsync();
 
@@ -119,6 +121,8 @@ public async Task<IActionResult> Edit(int id, [Bind("UserId,Username,Password,Ro
     new Microsoft.AspNetCore.Identity.PasswordHasher<User>()
         .HashPassword(existingUser, user.Password);
         }
+
+        user.Password = "";
 
         await _context.SaveChangesAsync();
 
