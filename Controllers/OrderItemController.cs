@@ -44,42 +44,68 @@ namespace KKBYFinals.Controllers
         }
 
         // GET: OrderItem/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+      public IActionResult Create()
+{
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId");
+
+    ViewData["ProductId"] = new SelectList(
+        _context.Product, "ProductId", "Name");
+
+    return View();
+}
 
         // POST: OrderItem/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("OrderItemId,OrderId,ProductId,Quantity,Subtotal")] OrderItem orderItem)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(orderItem);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(orderItem);
-        }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(
+    [Bind("OrderId,ProductId,Quantity,Subtotal")]
+    OrderItem orderItem)
+{
+    if (ModelState.IsValid)
+    {
+        _context.Add(orderItem);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId", orderItem.OrderId);
+
+    ViewData["ProductId"] = new SelectList(
+        _context.Product, "ProductId", "Name", orderItem.ProductId);
+
+    return View(orderItem);
+}
+
 
         // GET: OrderItem/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+       public async Task<IActionResult> Edit(int? id)
+{
+    if (id == null)
+    {
+        return NotFound();
+    }
 
-            var orderItem = await _context.OrderItem.FindAsync(id);
-            if (orderItem == null)
-            {
-                return NotFound();
-            }
-            return View(orderItem);
-        }
+    var orderItem = await _context.OrderItem.FindAsync(id);
+
+    if (orderItem == null)
+    {
+        return NotFound();
+    }
+
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId", orderItem.OrderId);
+
+    ViewData["ProductId"] = new SelectList(
+        _context.Product, "ProductId", "Name", orderItem.ProductId);
+
+    return View(orderItem);
+}
+
+        
 
         // POST: OrderItem/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -113,6 +139,11 @@ namespace KKBYFinals.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["OrderId"] = new SelectList(
+    _context.Order, "OrderId", "OrderId", orderItem.OrderId);
+
+ViewData["ProductId"] = new SelectList(
+    _context.Product, "ProductId", "Name", orderItem.ProductId);
             return View(orderItem);
         }
 

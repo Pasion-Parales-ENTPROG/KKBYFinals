@@ -45,76 +45,96 @@ namespace KKBYFinals.Controllers
 
         // GET: Payment/Create
         public IActionResult Create()
-        {
-            return View();
-        }
+{
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId");
 
+    return View();
+}
         // POST: Payment/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PaymentId,OrderId,Method,Status,Amount,PaymentDate")] Payment payment)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(payment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(payment);
-        }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Create(
+    [Bind("OrderId,Method,Status,Amount,PaymentDate")]
+    Payment payment)
+{
+    if (ModelState.IsValid)
+    {
+        _context.Add(payment);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId", payment.OrderId);
+
+    return View(payment);
+}
+
 
         // GET: Payment/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+       public async Task<IActionResult> Edit(int? id)
+{
+    if (id == null)
+    {
+        return NotFound();
+    }
 
-            var payment = await _context.Payment.FindAsync(id);
-            if (payment == null)
-            {
-                return NotFound();
-            }
-            return View(payment);
-        }
+    var payment = await _context.Payment.FindAsync(id);
+
+    if (payment == null)
+    {
+        return NotFound();
+    }
+
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId", payment.OrderId);
+
+    return View(payment);
+}
 
         // POST: Payment/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PaymentId,OrderId,Method,Status,Amount,PaymentDate")] Payment payment)
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(
+    int id,
+    [Bind("PaymentId,OrderId,Method,Status,Amount,PaymentDate")]
+    Payment payment)
+{
+    if (id != payment.PaymentId)
+    {
+        return NotFound();
+    }
+
+    if (ModelState.IsValid)
+    {
+        try
         {
-            if (id != payment.PaymentId)
+            _context.Update(payment);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!PaymentExists(payment.PaymentId))
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(payment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PaymentExists(payment.PaymentId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(payment);
+            throw;
         }
+    }
+
+    ViewData["OrderId"] = new SelectList(
+        _context.Order, "OrderId", "OrderId", payment.OrderId);
+
+    return View(payment);
+}
+
 
         // GET: Payment/Delete/5
         public async Task<IActionResult> Delete(int? id)

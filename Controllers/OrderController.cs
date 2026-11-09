@@ -58,7 +58,7 @@ namespace KKBYFinals.Controllers
 [HttpPost]
 [ValidateAntiForgeryToken]
 public async Task<IActionResult> Create(
-    [Bind("OrderId,UserId,CustomerName,OrderDate,Status,TotalAmount")]
+    [Bind("UserId,CustomerName,OrderDate,Status,TotalAmount")]
     Order order)
 {
     if (ModelState.IsValid)
@@ -131,7 +131,7 @@ public async Task<IActionResult> Edit(int? id)
             ViewData["UserId"] = new SelectList(
     _context.User, "UserId", "Username", order.UserId);
 
-return View(order);
+
             return View(order);
         }
 
