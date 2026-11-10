@@ -9,6 +9,12 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div class="form-group mb-3">
+    <input type="text" id="searchBox" class="form-control"
+           placeholder="Search order items..." />
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -27,27 +33,51 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.OrderId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Subtotal)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.OrderItemId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.OrderItemId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.OrderItemId">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="orderItemRows">
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OrderId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Subtotal)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.OrderItemId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.OrderItemId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.OrderItemId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+<script>
+    // Filter order items whenever the search text changes
+    document.getElementById("searchBox").addEventListener("input", function () {
+
+        // Get the entered text in lowercase
+        const text = this.value.toLowerCase();
+
+        // Check all order item rows
+        document.querySelectorAll("#orderItemRows tr").forEach(function (row) {
+
+            // Combine Order ID, Product ID, Quantity and Subtotal
+            const rowText = (row.cells[0].textContent + " " +
+                             row.cells[1].textContent + " " +
+                             row.cells[2].textContent + " " +
+                             row.cells[3].textContent).toLowerCase();
+
+            // Show matching records and hide the others
+            row.style.display = rowText.includes(text) ? "" : "none";
+        });
+    });
+</script>
+}

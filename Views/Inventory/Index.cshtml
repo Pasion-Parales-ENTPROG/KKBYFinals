@@ -9,6 +9,12 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div class="form-group mb-3">
+    <input type="text" id="searchBox" class="form-control"
+           placeholder="Search inventory..." />
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -27,27 +33,51 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProductId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Quantity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LastUpdated)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MinStockLevel)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.InventoryId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.InventoryId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.InventoryId">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="inventoryRows">
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ProductId)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LastUpdated)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MinStockLevel)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.InventoryId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.InventoryId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.InventoryId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+<script>
+    // Runs every time a key is typed in the search box
+    document.getElementById("searchBox").addEventListener("input", function () {
+
+        // What the user typed, in lowercase
+        const text = this.value.toLowerCase();
+
+        // Look at every row in the table
+        document.querySelectorAll("#inventoryRows tr").forEach(function (row) {
+
+            // Product ID, Quantity, Last Updated and Min Stock Level together
+            const rowText = (row.cells[0].textContent + " " +
+                             row.cells[1].textContent + " " +
+                             row.cells[2].textContent + " " +
+                             row.cells[3].textContent).toLowerCase();
+
+            // Show the row if it contains the text, hide it if not
+            row.style.display = rowText.includes(text) ? "" : "none";
+        });
+    });
+</script>
+}

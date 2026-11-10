@@ -9,35 +9,61 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<div class="form-group mb-3">
+    <input type="text" id="searchBox" class="form-control"
+           placeholder="Search users..." />
+</div>
+
 <table class="table">
     <thead>
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Username)
             </th>
-            
             <th>
                 @Html.DisplayNameFor(model => model.Role)
             </th>
             <th></th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Username)
-            </td>
-           
-            <td>
-                @Html.DisplayFor(modelItem => item.Role)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.UserId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.UserId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.UserId">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="userRows">
+        @foreach (var item in Model) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Username)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Role)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.UserId">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.UserId">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.UserId">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@section Scripts {
+<script>
+    // Start filtering when the search input changes
+    document.getElementById("searchBox").addEventListener("input", function () {
+
+        // Convert the search keyword to lowercase
+        const text = this.value.toLowerCase();
+
+        // Check every user row in the table
+        document.querySelectorAll("#userRows tr").forEach(function (row) {
+
+            // Combine Username and Role for searching
+            const rowText = (row.cells[0].textContent + " " +
+                             row.cells[1].textContent).toLowerCase();
+
+            // Show matching users and hide non-matching users
+            row.style.display = rowText.includes(text) ? "" : "none";
+        });
+    });
+</script>
+}
