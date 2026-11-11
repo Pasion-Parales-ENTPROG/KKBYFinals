@@ -22,6 +22,11 @@ namespace KKBYFinals.Controllers
         // GET: OrderItem
         public async Task<IActionResult> Index()
         {
+             var orderItems = await _context.OrderItem
+            .Include(oi => oi.Order)
+            .Include(oi => oi.Product)
+            .ToListAsync();
+            
             return View(await _context.OrderItem.ToListAsync());
         }
 

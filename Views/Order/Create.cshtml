@@ -1,61 +1,246 @@
-@model KKBYFinals.Models.Order
+
+@model KKBYFinals.Models.OrderCreateViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Order";
+    var products = ViewBag.Products as List<KKBYFinals.Models.Product>
+                   ?? new List<KKBYFinals.Models.Product>();
 }
 
-<h1>Create</h1>
-
-<h4>Order</h4>
+<h1>Create Order</h1>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            
-<div class="form-group">
-    <label asp-for="UserId" class="control-label">Staff</label>
-    <select asp-for="UserId"
-            class="form-control"
-            asp-items="ViewBag.UserId">
-        <option value="">-- Select Staff --</option>
-    </select>
-    <span asp-validation-for="UserId" class="text-danger"></span>
-</div>
 
-            <div class="form-group">
-                <label asp-for="CustomerName" class="control-label"></label>
-                <input asp-for="CustomerName" class="form-control" />
-                <span asp-validation-for="CustomerName" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderDate" class="control-label"></label>
-                <input asp-for="OrderDate" class="form-control" />
-                <span asp-validation-for="OrderDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <input asp-for="Status" class="form-control" />
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TotalAmount" class="control-label"></label>
-                <input asp-for="TotalAmount" class="form-control" />
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="UserId" class="form-label">Staff</label>
+            <select asp-for="UserId" asp-items="ViewBag.UserId" class="form-control">
+                <option value="">-- Select Staff --</option>
+            </select>
+            <span asp-validation-for="UserId" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label asp-for="CustomerName" class="form-label"></label>
+            <input asp-for="CustomerName" class="form-control"
+                   placeholder="Enter customer name" />
+            <span asp-validation-for="CustomerName" class="text-danger"></span>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <hr />
+    <h4>Order Items</h4>
+
+    <div class="table-responsive">
+        <table class="table table-bordered" id="orderItemsTable">
+            <thead>
+                <tr>
+                    <th style="width:45%">Product Name</th>
+                    <th style="width:20%">Price</th>
+                    <th style="width:20%">Quantity</th>
+                    <th style="width:15%">Action</th>
+                </tr>
+            </thead>
+            <tbody id="orderItemsBody">
+                @for (int i = 0; i < Model.Items.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <select name="Items[@i].ProductId"
+                                    class="form-control product-select" required>
+                                <option value="">-- Select Product --</option>
+                                @foreach (var product in products)
+                                {
+                                    if (Model.Items[i].ProductId == product.ProductId)
+                                    {
+                                        <option value="@product.ProductId"
+                                                data-price="@product.Price" selected>
+                                            @product.Name
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@product.ProductId"
+                                                data-price="@product.Price">
+                                            @product.Name
+                                        </option>
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" class="form-control price-display"
+                                   value="₱0.00" readonly />
+                        </td>
+                        <td>
+                            <input name="Items[@i].Quantity"
+                                   type="number" min="1"
+                                   value="@Model.Items[i].Quantity"
+                                   class="form-control quantity-input" required />
+                        </td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-danger btn-sm remove-row">
+                                Remove
+                            </button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <button type="button" id="addProduct"
+            class="btn btn-secondary mb-3">
+        + Add Product
+    </button>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="PaymentMethod" class="form-label">Payment Method</label>
+            <select asp-for="PaymentMethod" class="form-control">
+                <option value="Cash">Cash</option>
+                <option value="GCash">GCash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+            </select>
+            <span asp-validation-for="PaymentMethod" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Payment Status</label>
+            <input class="form-control" value="Unpaid" readonly />
+        </div>
+    </div>
+
+    <div class="text-end mb-3">
+        <h4>Total Amount: <span id="grandTotal">₱0.00</span></h4>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Order</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        const tbody = document.getElementById("orderItemsBody");
+        const addButton = document.getElementById("addProduct");
+        const grandTotal = document.getElementById("grandTotal");
+
+        const productOptions = `
+            <option value="">-- Select Product --</option>
+            @foreach (var product in products)
+            {
+                <option value="@product.ProductId" data-price="@product.Price">
+                    @Html.Raw(System.Text.Encodings.Web.HtmlEncoder.Default.Encode(product.Name))
+                </option>
+            }
+        `;
+
+        function updateRow(row) {
+            const select = row.querySelector(".product-select");
+            const priceInput = row.querySelector(".price-display");
+            const selected = select.options[select.selectedIndex];
+
+            const price = Number(selected?.dataset.price || 0);
+
+            priceInput.value = "₱" + price.toFixed(2);
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let total = 0;
+
+            tbody.querySelectorAll("tr").forEach(row => {
+                const select = row.querySelector(".product-select");
+                const quantity = Number(
+                    row.querySelector(".quantity-input").value
+                );
+
+                const selected = select.options[select.selectedIndex];
+                const price = Number(selected?.dataset.price || 0);
+
+                total += price * quantity;
+            });
+
+            grandTotal.textContent = "₱" + total.toFixed(2);
+        }
+
+        function addRow() {
+            const index = tbody.querySelectorAll("tr").length;
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>
+                    <select name="Items[${index}].ProductId"
+                            class="form-control product-select" required>
+                        ${productOptions}
+                    </select>
+                </td>
+                <td>
+                    <input type="text" class="form-control price-display"
+                           value="₱0.00" readonly />
+                </td>
+                <td>
+                    <input name="Items[${index}].Quantity"
+                           type="number" min="1" value="1"
+                           class="form-control quantity-input" required />
+                </td>
+                <td>
+                    <button type="button"
+                            class="btn btn-danger btn-sm remove-row">
+                        Remove
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(row);
+            updateTotal();
+        }
+
+        function reindexRows() {
+            tbody.querySelectorAll("tr").forEach((row, index) => {
+                row.querySelector(".product-select").name =
+                    `Items[${index}].ProductId`;
+
+                row.querySelector(".quantity-input").name =
+                    `Items[${index}].Quantity`;
+            });
+        }
+
+        addButton.addEventListener("click", addRow);
+
+        tbody.addEventListener("change", function (event) {
+            if (event.target.classList.contains("product-select")) {
+                updateRow(event.target.closest("tr"));
+            }
+        });
+
+        tbody.addEventListener("input", function (event) {
+            if (event.target.classList.contains("quantity-input")) {
+                updateTotal();
+            }
+        });
+
+        tbody.addEventListener("click", function (event) {
+            if (event.target.classList.contains("remove-row")) {
+                if (tbody.querySelectorAll("tr").length > 1) {
+                    event.target.closest("tr").remove();
+                    reindexRows();
+                    updateTotal();
+                } else {
+                    alert("At least one product is required.");
+                }
+            }
+        });
+
+        tbody.querySelectorAll("tr").forEach(updateRow);
+    </script>
 }
