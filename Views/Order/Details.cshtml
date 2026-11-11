@@ -1,48 +1,175 @@
+
 @model KKBYFinals.Models.Order
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Order Details";
 }
 
-<h1>Details</h1>
+<h1>Order Details</h1>
 
-<div>
-    <h4>Order</h4>
+<div class="card p-4 mb-4">
+    <h4>Customer Information</h4>
     <hr />
+
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserId)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CustomerName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CustomerName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.OrderDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.OrderDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TotalAmount)
-        </dd>
+        <dt class="col-sm-3">Order ID</dt>
+        <dd class="col-sm-9">@Model.OrderId</dd>
+
+        <dt class="col-sm-3">Customer Name</dt>
+        <dd class="col-sm-9">@Model.CustomerName</dd>
+
+        <dt class="col-sm-3">Staff ID</dt>
+        <dd class="col-sm-9">@Model.UserId</dd>
+
+        <dt class="col-sm-3">Order Date</dt>
+        <dd class="col-sm-9">@Model.OrderDate</dd>
+
+        <dt class="col-sm-3">Order Status</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
     </dl>
 </div>
+
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model.Status != "Completed")
+{
+    <div class="card p-3 mb-4">
+        <h4>Update Order Status</h4>
+
+        <form asp-action="UpdateStatus" method="post">
+            <input type="hidden" name="id" value="@Model.OrderId" />
+
+            <div class="mb-3">
+                <label class="form-label">New Status</label>
+
+                <select name="newStatus" class="form-select">
+                    <option value="Pending"
+                        selected="@(Model.Status == "Pending")">
+                        Pending
+                    </option>
+
+                    <option value="Preparing"
+                        selected="@(Model.Status == "Preparing")">
+                        Preparing
+                    </option>
+
+                    <option value="Ready"
+                        selected="@(Model.Status == "Ready")">
+                        Ready
+                    </option>
+
+                    <option value="Completed"
+                        selected="@(Model.Status == "Completed")">
+                        Completed
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Update Status
+            </button>
+        </form>
+    </div>
+}
+
+
+<div class="card p-4 mb-4">
+    <h4>Ordered Products</h4>
+    <hr />
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product Name</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.OrderItems != null && Model.OrderItems.Any())
+            {
+                @foreach (var item in Model.OrderItems)
+                {
+                    <tr>
+                        <td>@item.Product?.Name</td>
+                        <td>@item.Quantity</td>
+                        <td>₱@item.Subtotal.ToString("N2")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center">
+                        No products found for this order.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h5 class="text-end">
+        Total Amount: ₱@Model.TotalAmount.ToString("N2")
+    </h5>
+</div>
+
+<div class="card p-4 mb-4">
+    <h4>Payment Information</h4>
+    <hr />
+
+    <p>
+        <strong>Payment Method:</strong>
+        @Model.PaymentMethod
+    </p>
+
+    <p>
+        <strong>Payment Status:</strong>
+        @Model.PaymentStatus
+    </p>
+
+    <p>
+        <strong>Payment Amount:</strong>
+        ₱@Model.TotalAmount.ToString("N2")
+    </p>
+
+    <p>
+        <strong>Payment Date:</strong>
+        @(Model.PaymentDate?.ToString("MMMM dd, yyyy hh:mm tt") ?? "Not yet paid")
+    </p>
+
+    @if (Model.PaymentStatus == "Unpaid")
+    {
+        <form asp-action="MarkAsPaid" method="post">
+            <input type="hidden" name="id" value="@Model.OrderId" />
+
+            <button type="submit" class="btn btn-success">
+                Mark as Paid
+            </button>
+        </form>
+    }
+    else
+    {
+        <span class="badge bg-success">Payment Completed</span>
+    }
+</div>
+
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.OrderId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.OrderId"
+       class="btn btn-primary">Edit Order</a>
+
+    <a asp-action="Index" class="btn btn-secondary">Back to Orders</a>
 </div>

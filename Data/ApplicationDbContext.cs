@@ -15,7 +15,5 @@ public DbSet<KKBYFinals.Models.Inventory> Inventory { get; set; } = default!;
 
 public DbSet<KKBYFinals.Models.Order> Order { get; set; } = default!;
 
-public DbSet<KKBYFinals.Models.Payment> Payment { get; set; } = default!;
-
 public DbSet<KKBYFinals.Models.OrderItem> OrderItem { get; set; } = default!;
 }
