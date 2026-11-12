@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KKBYFinals.Data;
 using KKBYFinals.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KKBYFinals.Controllers
 {
+    [Authorize(Roles = "Admin,Kitchen Staff")]
     public class InventoryController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,7 +28,7 @@ namespace KKBYFinals.Controllers
             .Include(i => i.Product)
             .ToListAsync();
 
-            return View(await _context.Inventory.ToListAsync());
+            return View(inventory);
         }
 
         // GET: Inventory/Details/5

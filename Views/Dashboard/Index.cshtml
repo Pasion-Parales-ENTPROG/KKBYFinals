@@ -1,0 +1,93 @@
+@model KKBYFinals.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid py-4">
+
+    <h1 class="mb-1">KusinaHub Dashboard</h1>
+    <p class="text-muted mb-4">System Overview</p>
+
+    <div class="row g-3">
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Pending Orders</h6>
+                    <h2 class="text-primary fw-bold">
+                        @Model.PendingOrders
+                    </h2>
+                    <span class="text-muted">Orders waiting</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Preparing Orders</h6>
+                    <h2 class="text-warning fw-bold">
+                        @Model.PreparingOrders
+                    </h2>
+                    <span class="text-muted">Currently preparing</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Ready Orders</h6>
+                    <h2 class="text-success fw-bold">
+                        @Model.ReadyOrders
+                    </h2>
+                    <span class="text-muted">Ready to serve</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h6 class="text-muted">Low Stock Items</h6>
+                    <h2 class="text-danger fw-bold">
+                        @Model.LowStockItems
+                    </h2>
+                    <span class="text-muted">Needs restocking</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row g-3 mt-2">
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="text-muted">Unpaid Orders</h5>
+                    <h2 class="fw-bold">
+                        @Model.UnpaidOrders
+                    </h2>
+                    <span class="text-muted">Orders not yet paid</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="text-muted">Total Unpaid Amount</h5>
+                    <h2 class="text-danger fw-bold">
+                        @Model.UnpaidAmount.ToString("C", 
+                            System.Globalization.CultureInfo.GetCultureInfo("en-PH"))
+                    </h2>
+                    <span class="text-muted">Outstanding payments</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
