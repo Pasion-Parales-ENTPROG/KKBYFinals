@@ -22,6 +22,9 @@
                 @Html.DisplayNameFor(model => model.ProductId)
             </th>
             <th>
+               Product Name
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Quantity)
             </th>
             <th>
@@ -39,6 +42,7 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.ProductId)
                 </td>
+                <td>@(item.Product != null ? item.Product.Name : "N/A")</td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Quantity)
                 </td>
@@ -69,11 +73,7 @@
         // Look at every row in the table
         document.querySelectorAll("#inventoryRows tr").forEach(function (row) {
 
-            // Product ID, Quantity, Last Updated and Min Stock Level together
-            const rowText = (row.cells[0].textContent + " " +
-                             row.cells[1].textContent + " " +
-                             row.cells[2].textContent + " " +
-                             row.cells[3].textContent).toLowerCase();
+            const rowText = row.textContent.toLowerCase();
 
             // Show the row if it contains the text, hide it if not
             row.style.display = rowText.includes(text) ? "" : "none";

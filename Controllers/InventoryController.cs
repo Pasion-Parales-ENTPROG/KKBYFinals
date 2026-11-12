@@ -22,6 +22,10 @@ namespace KKBYFinals.Controllers
         // GET: Inventory
         public async Task<IActionResult> Index()
         {
+            var inventory = await _context.Inventory
+            .Include(i => i.Product)
+            .ToListAsync();
+
             return View(await _context.Inventory.ToListAsync());
         }
 

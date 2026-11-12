@@ -4,6 +4,12 @@ using KKBYFinals.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+TimeZoneInfo.ClearCachedData();
+
+var philippinesTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
+    OperatingSystem.IsWindows() ? "Singapore Standard Time" : "Asia/Manila"
+);
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
