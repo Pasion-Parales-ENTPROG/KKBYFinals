@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KKBYFinals.Data;
 using KKBYFinals.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KKBYFinals.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
         private readonly ApplicationDbContext _context;

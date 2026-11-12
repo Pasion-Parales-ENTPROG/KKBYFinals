@@ -1,0 +1,76 @@
+@model IEnumerable<KKBYFinals.Models.ViewModels.LiveStockViewModel>
+
+@{
+    ViewData["Title"] = "Live Stock";
+}
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">KusinaHub Live Stock</h2>
+        <p class="text-muted">
+            Check the available servings of our products.
+        </p>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Price</th>
+                            <th>Remaining Quantity</th>
+                            <th>Availability</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model.Any())
+                        {
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">
+                                        @item.ProductName
+                                    </td>
+
+                                    <td>
+                                        ₱@item.Price.ToString("N2")
+                                    </td>
+
+                                    <td>
+                                        @item.RemainingQuantity
+                                    </td>
+
+                                    <td>
+                                        @if (item.RemainingQuantity > 0)
+                                        {
+                                            <span class="badge bg-success">
+                                                Available
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">
+                                                Out of Stock
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">
+                                    No products available.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
