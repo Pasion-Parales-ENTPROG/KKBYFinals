@@ -155,7 +155,14 @@ public async Task<IActionResult> Create(OrderCreateViewModel model)
         {
             UserId = model.UserId,
             CustomerName = model.CustomerName,
-            OrderDate = DateTime.Now,
+            OrderDate = TimeZoneInfo.ConvertTimeFromUtc(
+            DateTime.UtcNow,
+            TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows()
+            ? "Singapore Standard Time"
+            : "Asia/Manila"
+    )
+),
             Status = "Pending",
             PaymentMethod = model.PaymentMethod,
             PaymentStatus = "Unpaid",

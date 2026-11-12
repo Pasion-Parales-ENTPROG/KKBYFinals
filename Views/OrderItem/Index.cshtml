@@ -6,9 +6,7 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+
 
 <div class="form-group mb-3">
     <input type="text" id="searchBox" class="form-control"
@@ -55,7 +53,6 @@
                     @Html.DisplayFor(modelItem => item.Subtotal)
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.OrderItemId">Edit</a> |
                     <a asp-action="Details" asp-route-id="@item.OrderItemId">Details</a> |
                     <a asp-action="Delete" asp-route-id="@item.OrderItemId">Delete</a>
                 </td>
