@@ -81,6 +81,17 @@
         </li>
     }
 
+    @if (User.IsInRole("Admin") ||
+     User.IsInRole("Cashier") ||
+     User.IsInRole("Kitchen Staff"))
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark"
+           asp-controller="Holiday"
+           asp-action="Index">Holiday Calendar</a>
+    </li>
+}
+
 </ul>
 
 
