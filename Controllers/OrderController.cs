@@ -328,40 +328,38 @@ public async Task<IActionResult> Edit(int? id)
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("OrderId,UserId,CustomerName,OrderDate,Status,TotalAmount")] Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return NotFound();
-            }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Edit(int id, Order order)
+{
+    if (id != order.OrderId)
+    {
+        return NotFound();
+    }
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(order);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!OrderExists(order.OrderId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["UserId"] = new SelectList(
-    _context.User, "UserId", "Username", order.UserId);
+    var existingOrder = await _context.Order.FindAsync(id);
 
+    if (existingOrder == null)
+    {
+        return NotFound();
+    }
 
-            return View(order);
-        }
+    if (string.IsNullOrWhiteSpace(order.CustomerName))
+    {
+        ModelState.AddModelError("CustomerName", "Customer name is required.");
+
+        ViewData["UserId"] = new SelectList(
+            _context.User, "UserId", "Username", order.UserId);
+
+        return View(order);
+    }
+
+    existingOrder.UserId = order.UserId;
+    existingOrder.CustomerName = order.CustomerName;
+
+    await _context.SaveChangesAsync();
+
+    return RedirectToAction(nameof(Index));
+}
 
         // GET: Order/Delete/5
         public async Task<IActionResult> Delete(int? id)
