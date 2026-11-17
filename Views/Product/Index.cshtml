@@ -73,13 +73,14 @@
         const text = this.value.toLowerCase();
 
         // Look at every row in the table
-        document.querySelectorAll("#studentRows tr").forEach(function (row) {
+        document.querySelectorAll("#productRows tr").forEach(function (row) {
 
             // Product Name, Category, Price and Serving Size together
             const rowText = (row.cells[0].textContent + " " +
-                             row.cells[1].textContent + " " +
-                             row.cells[2].textContent + " " +
-                             row.cells[3].textContent).toLowerCase();
+                 row.cells[1].textContent + " " +
+                 row.cells[2].textContent + " " +
+                 row.cells[3].textContent + " " +
+                 row.cells[4].textContent).toLowerCase();
 
             // Show or hide the row
             row.style.display = rowText.includes(text) ? "" : "none";
